@@ -1,7 +1,7 @@
 """Module providing temperature monitoring for floor heating"""
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
-from pi1wire import Pi1Wire, Resolution
+from pi1wire import Pi1Wire
 
 class TemperatureSensor:
     """Class representing a temperature sensor"""
@@ -40,11 +40,11 @@ class TemperatureSensor:
     def publish(self):
         """Sensor publish to MQTT function"""
         try:
-            sensor_value = '{"temperatuur":"%.1f"}'%self.temperature
+            sensor_value = f'{"temperatuur":"self.temperature.1f"}'
             self.mqtt_broker.publish(self.topic,
                                      payload = sensor_value,
                                      qos=0, retain=True)
-            sensor_attr = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}'
+            sensor_attr = f'{"mac_address":"{self.sensoraddress}","status":"{self.sensorstate}"}'
             self.mqtt_broker.publish(self.topic+'/attributes',
                                      payload = sensor_attr,
                                      qos=0,
@@ -70,9 +70,9 @@ class MyThread(Thread):
 
     def run(self):
         """Run function of timed thread"""
-        global Sensors
+        global sensors
         while not self.stopped.wait(self.interval):
-            for sensor in Sensors:
+            for sensor in sensors:
                 sensor.read()
                 sensor.publish()
 
