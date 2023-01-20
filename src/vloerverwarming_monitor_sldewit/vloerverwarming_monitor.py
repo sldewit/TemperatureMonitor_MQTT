@@ -1,9 +1,10 @@
 """Module providing temperature monitoring for floor heating"""
+import sys
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire
 
-sensors = []
+SENSORS = []
 
 class TemperatureSensor:
     """Class representing a temperature sensor"""
@@ -72,9 +73,9 @@ class MyThread(Thread):
 
     def run(self):
         """Run function of timed thread"""
-        global sensors
+        global SENSORS
         while not self.stopped.wait(self.interval):
-            for sensor in sensors:
+            for sensor in SENSORS:
                 sensor.read()
                 sensor.publish()
 
@@ -92,11 +93,11 @@ except Exception as exception:
     print(f"Failed to connect to MQTT: {exception}")
     sys.exit()
 
-sensors.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
-sensors.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
-sensors.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
-sensors.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
-sensors.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
 
 stop_flag = Event()
 thread= MyThread(stop_flag, 10)
