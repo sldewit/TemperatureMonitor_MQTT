@@ -5,10 +5,23 @@
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![License][license-shield]](LICENSE)
 
-Monitor systeem voor vloerverwarming
+Monitoring system for a floor heating system with heat exchanger. 
 
-Dit systeem is ontworpen om de verschillende kringen in een vloerverwarmings systeem te monitoren en te publiceren naar een MQTT broker.
+This system is design to monitor several different loops in a floor heating system using a heat exchanger. The measured data is published to a MQTT broker. 
 
+# Hardware setup
+
+The system is built arround 1-wire temperature sensor DS18B20 connected to a Raspberry Pi with 1-wire setup as default on GPIO 4. 
+
+My specific project will be using 10 DS18B20 sensors to monitor my total 8 loops + supply/return on the heat exchanger. They are connected as shown in this picture:
+
+![Figure 1-1](https://github.com/sldewit/VloerverwarmingMonitor/blob/5161e3ec3d567c0ba0c02cbbaa3b987bfebc9c35/Fritzing/Vloerverwarming%20monitor_schema.svg)
+
+My POC setup for now uses only 5 DS18B20 sensors. 
+
+Below my basic call structure for 5 different sensors.
+
+```
    try:
         client = mqtt.Client() 
         client.on_connect = on_connect
@@ -34,6 +47,8 @@ Dit systeem is ontworpen om de verschillende kringen in een vloerverwarmings sys
     stopFlag = Event()
     thread= MyThread(stopFlag, 10)
     thread.start()
+```
+
 
 [license-shield]: https://img.shields.io/github/license/sldewit/vloerverwarmingMonitor.svg
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40sldewit-blue.svg
