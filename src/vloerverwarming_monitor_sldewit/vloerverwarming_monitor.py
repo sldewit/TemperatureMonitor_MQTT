@@ -23,9 +23,9 @@ class TemperatureSensor:
         try:
             self.temperaturesensor = Pi1Wire().find(self.sensoraddress)
             self.sensorstate = "online"
-        except Exception as exception:
+        except Exception as pi1wire_exception:
             self.sensorstate = "not found"
-            print(f"Exception initializing sensor: {exception}")
+            print(f"Exception initializing sensor: {pi1wire_exception}")
 
     def read(self):
         """Sensor read function"""
@@ -33,9 +33,9 @@ class TemperatureSensor:
             try:
                 self.temperature = self.temperaturesensor.get_temperature()
                 self.sensorstate = "online"
-            except Exception as exception:
+            except Exception as sensor_exception:
                 self.sensorstate = "offline"
-                print(f"Exception while reading sensor: {exception}")
+                print(f"Exception while reading sensor: {sensor_exception}")
         else: #simulate in case not really there
             self.temperature += 0.1
             print(f"Simulate sensor: {self.topic} - {self.temperature}")
@@ -52,10 +52,10 @@ class TemperatureSensor:
                                      payload = sensor_attr,
                                      qos=0,
                                      retain=False)
-        except Exception as exception:
-            print(f"MQTT publish failed: {exception}")
+        except Exception as mqtt_exception:
+            print(f"MQTT publish failed: {mqtt_exception}")
 
-def on_connect(client, userdata, flags, return_code):
+def on_connect(return_code):
     """On connect event"""
     if return_code == 0:
         print("Connected success")
@@ -89,8 +89,8 @@ try:
     client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
     client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
     client.loop_start()
-except Exception as exception:
-    print(f"Failed to connect to MQTT: {exception}")
+except Exception as connect_exception:
+    print(f"Failed to connect to MQTT: {connect_exception}")
     sys.exit()
 
 SENSORS.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
