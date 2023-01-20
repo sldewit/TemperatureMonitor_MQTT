@@ -4,6 +4,7 @@
 [![Stable Release][stable_release]][stable_release]
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![License][license-shield]](LICENSE)
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 Monitoring system for a floor heating system with heat exchanger. 
 
@@ -49,7 +50,8 @@ Below my basic call structure for 5 different sensors.
     thread.start()
 ```
 
-
+[buymecoffee]: https://www.buymeacoffee.com/sldewit
+[buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png
 [license-shield]: https://img.shields.io/github/license/sldewit/vloerverwarmingMonitor.svg
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40sldewit-blue.svg
 [user_profile]: https://github.com/sldewit
