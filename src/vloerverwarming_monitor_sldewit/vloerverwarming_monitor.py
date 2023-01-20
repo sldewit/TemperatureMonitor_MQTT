@@ -3,6 +3,8 @@ from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire
 
+sensors = []
+
 class TemperatureSensor:
     """Class representing a temperature sensor"""
     topic = ""
@@ -88,9 +90,7 @@ try:
     client.loop_start()
 except Exception as exception:
     print(f"Failed to connect to MQTT: {exception}")
-    exit()
-
-sensors = []
+    sys.exit()
 
 sensors.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
 sensors.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
