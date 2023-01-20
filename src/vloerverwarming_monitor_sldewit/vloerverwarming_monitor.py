@@ -1,4 +1,5 @@
 """Module providing temperature monitoring for floor heating"""
+# pylint: disable=broad-exception-caught
 import sys
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
