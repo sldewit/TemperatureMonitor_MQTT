@@ -9,7 +9,7 @@ authors = [
   { name="Stephan de Wit", email="stephan@de-wit.me" },
 ]
 description = "Monitoring systeem voor vloerverwarming"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
