@@ -2,7 +2,7 @@ from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire, Resolution
 
-class temperature_sensor:
+class TemperatureSensor:
     """Class representing a temperature sensor"""
     topic = ""
     temperature = 0.0
@@ -18,33 +18,35 @@ class temperature_sensor:
         try:
             self.temperaturesensor = Pi1Wire().find(self.sensoraddress)
             self.sensorstate = "online"
-        except Exception as e:
+        except Exception as exception:
             self.sensorstate = "not found"
-            print(f"Exception initializing sensor: {e}")
+            print(f"Exception initializing sensor: {exception}")
 
     def read(self):
         if self.temperaturesensor != 0:
             try:
                 self.temperature = self.temperaturesensor.get_temperature()
                 self.sensorstate = "online"
-            except Exception as e:
+            except Exception as exception:
                 self.sensorstate = "offline"
-                print(f"Exception while reading sensor: {e}")
+                print(f"Exception while reading sensor: {exception}")
         else: #simulate in case not really there
             self.temperature += 0.1
             print(f"Simulate sensor: {self.topic} - {self.temperature}")
 
     def publish(self):
         try:
+            sensor_value = '{"temperatuur":"%.1f"}'%self.temperature
             self.mqtt_broker.publish(self.topic,
-                                     payload = '{"temperatuur":"%.1f"}'%self.temperature,
+                                     payload = sensor_value,
                                      qos=0, retain=True)
+            sensor_attributes = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}'
             self.mqtt_broker.publish(self.topic+'/attributes',
-                                     payload = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}',
+                                     payload = sensor_attributes,
                                      qos=0,
                                      retain=False)
-        except Exception as e:
-            print(f"MQTT publish failed: {e}")
+        except Exception as exception:
+            print(f"MQTT publish failed: {exception}")
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -77,17 +79,17 @@ try:
     client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
     client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
     client.loop_start()
-except Exception as e:
-    print(f"Failed to connect to MQTT: {e}")
+except Exception as exception:
+    print(f"Failed to connect to MQTT: {exception}")
     exit()
 
 Sensors = []
 
-Sensors.append(temperature_sensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
-Sensors.append(temperature_sensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
-Sensors.append(temperature_sensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
-Sensors.append(temperature_sensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
-Sensors.append(temperature_sensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
+Sensors.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
+Sensors.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
+Sensors.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
+Sensors.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
+Sensors.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
 
 stopFlag = Event()
 thread= MyThread(stopFlag, 10)
