@@ -40,8 +40,7 @@ class temperature_sensor:
                                      payload = '{"temperatuur":"%.1f"}'%self.temperature,
                                      qos=0, retain=True)
             self.mqtt_broker.publish(self.topic+'/attributes',
-                                     payload = '{"mac_address":"'+self.sensoraddress+'",
-                                     "status":"'+self.sensorstate+'"}',
+                                     payload = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}',
                                      qos=0,
                                      retain=False)
         except Exception as e:
