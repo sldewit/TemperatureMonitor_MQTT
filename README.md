@@ -1,12 +1,13 @@
-======================
-VloerverwarmingMonitor
-======================
+
+# VloerverwarmingMonitor
+
+[![Stable Release][stable_release]][stable_release]
+[![Project Maintenance][maintenance-shield]][user_profile]
+[![License][license-shield]](LICENSE)
 
 Monitor systeem voor vloerverwarming
 
 Dit systeem is ontworpen om de verschillende kringen in een vloerverwarmings systeem te monitoren en te publiceren naar een MQTT broker.
-
-.. code-block:: python
 
    try:
         client = mqtt.Client() 
@@ -34,3 +35,7 @@ Dit systeem is ontworpen om de verschillende kringen in een vloerverwarmings sys
     thread= MyThread(stopFlag, 10)
     thread.start()
 
+[license-shield]: https://img.shields.io/github/license/sldewit/vloerverwarmingMonitor.svg
+[maintenance-shield]: https://img.shields.io/badge/maintainer-%40sldewit-blue.svg
+[user_profile]: https://github.com/sldewit
+[stable_release]: https://shields.io/github/v/release/sldewit/VloerverwarmingMonitor?label=stable&sort=semver
