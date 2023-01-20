@@ -1,3 +1,4 @@
+"""Module providing temperature monitoring for floor heating"""
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire, Resolution
@@ -12,6 +13,7 @@ class TemperatureSensor:
     mqtt_broker = 0
 
     def __init__(self, topic, sensoraddress, mqtt_broker) -> None:
+        """Init function"""
         self.topic = topic
         self.mqtt_broker = mqtt_broker
         self.sensoraddress = sensoraddress
@@ -23,6 +25,7 @@ class TemperatureSensor:
             print(f"Exception initializing sensor: {exception}")
 
     def read(self):
+        """Sensor read function"""
         if self.temperaturesensor != 0:
             try:
                 self.temperature = self.temperaturesensor.get_temperature()
@@ -35,34 +38,38 @@ class TemperatureSensor:
             print(f"Simulate sensor: {self.topic} - {self.temperature}")
 
     def publish(self):
+        """Sensor publish to MQTT function"""
         try:
             sensor_value = '{"temperatuur":"%.1f"}'%self.temperature
             self.mqtt_broker.publish(self.topic,
                                      payload = sensor_value,
                                      qos=0, retain=True)
-            sensor_attributes = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}'
+            sensor_attr = '{"mac_address":"'+self.sensoraddress+'","status":"'+self.sensorstate+'"}'
             self.mqtt_broker.publish(self.topic+'/attributes',
-                                     payload = sensor_attributes,
+                                     payload = sensor_attr,
                                      qos=0,
                                      retain=False)
         except Exception as exception:
             print(f"MQTT publish failed: {exception}")
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
+def on_connect(client, userdata, flags, return_code):
+    """On connect event"""
+    if return_code == 0:
         print("Connected success")
     else:
-        print(f"Connected fail with code {rc}")
+        print(f"Connected fail with code {return_code}")
 
 class MyThread(Thread):
     """Class for time thread"""
     interval = 1
     def __init__(self, event, interval):
+        """Init function"""
         Thread.__init__(self)
         self.stopped = event
         self.interval = interval
 
     def run(self):
+        """Run function of timed thread"""
         global Sensors
         while not self.stopped.wait(self.interval):
             for sensor in Sensors:
@@ -83,14 +90,14 @@ except Exception as exception:
     print(f"Failed to connect to MQTT: {exception}")
     exit()
 
-Sensors = []
+sensors = []
 
-Sensors.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
-Sensors.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
-Sensors.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
-Sensors.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
-Sensors.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
+sensors.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
+sensors.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
+sensors.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
+sensors.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
+sensors.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
 
-stopFlag = Event()
-thread= MyThread(stopFlag, 10)
+stop_flag = Event()
+thread= MyThread(stop_flag, 10)
 thread.start()
