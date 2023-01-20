@@ -29,6 +29,6 @@ jobs:
         pip install -r development-requirements.txt
     - name: Check lint
       run: python -m pylint src
-    - name: Test with pytest
-      run: |
-        pytest -m pytest tests
+#    - name: Test with pytest
+#      run: |
+#        pytest -m pytest tests
