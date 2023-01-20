@@ -54,10 +54,14 @@ class TemperatureSensor:
         except Exception as mqtt_exception:
             print(f"MQTT publish failed: {mqtt_exception}")
 
-def on_connect(return_code):
+# pylint: disable-next=W0613
+def on_connect(client, userdata, flags, return_code):
     """On connect event"""
     if return_code == 0:
         print("Connected success")
+        print(client)
+        print(userdata)
+        print(flags)
     else:
         print(f"Connected fail with code {return_code}")
 
