@@ -59,9 +59,6 @@ def on_connect(client, userdata, flags, return_code):
     """On connect event"""
     if return_code == 0:
         print("Connected success")
-        print(client)
-        print(userdata)
-        print(flags)
     else:
         print(f"Connected fail with code {return_code}")
 
@@ -82,26 +79,26 @@ class MyThread(Thread):
                 sensor.publish()
 
 try:
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.will_set('vloerverwarming/status', "offline")
-    client.username_pw_set("mqtt","test_mqtt")
-    client.connect("ha.de-wit.me", 1883, 60)
-    client.publish('vloerverwarming/status',payload = "online", qos=0, retain=True)
-    client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
-    client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
-    client.loop_start()
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = on_connect
+    mqtt_client.will_set('vloerverwarming/status', "offline")
+    mqtt_client.username_pw_set("mqtt","test_mqtt")
+    mqtt_client.connect("ha.de-wit.me", 1883, 60)
+    mqtt_client.publish('vloerverwarming/status',payload = "online", qos=0, retain=True)
+    mqtt_client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
+    mqtt_client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
+    mqtt_client.loop_start()
 except Exception as connect_exception:
     print(f"Failed to connect to MQTT: {connect_exception}")
     sys.exit()
 
 SENSORS = []
 
-SENSORS.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",client))
-SENSORS.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",client))
-SENSORS.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",client))
-SENSORS.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",client))
-SENSORS.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",mqtt_client))
 
 stop_flag = Event()
 thread= MyThread(stop_flag, 10)
