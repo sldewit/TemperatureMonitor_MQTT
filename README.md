@@ -1,12 +1,12 @@
 
-# VloerverwarmingMonitor
+# Temperature monitoring system using MQTT
 
 [![Stable Release][stable_release]][stable_release]
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![License][license-shield]](LICENSE)
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-Monitoring system for a floor heating system with heat exchanger. 
+Monitoring system several temperature sensors. One of the use cases is for a floor heating system with heat exchanger. 
 
 This system is design to monitor several different loops in a floor heating system using a heat exchanger. The measured data is published to a MQTT broker. 
 
