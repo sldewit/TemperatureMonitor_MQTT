@@ -16,7 +16,7 @@ The system is built arround 1-wire temperature sensor DS18B20 connected to a Ras
 
 My specific project will be using 10 DS18B20 sensors to monitor my total 8 loops + supply/return on the heat exchanger. They are connected as shown in this picture:
 
-![Figure 1-1](https://github.com/sldewit/VloerverwarmingMonitor/blob/5161e3ec3d567c0ba0c02cbbaa3b987bfebc9c35/Fritzing/Vloerverwarming%20monitor_schema.svg)
+![Figure 1-1](https://github.com/sldewit/TemperatureMonitor_MQTT/blob/5161e3ec3d567c0ba0c02cbbaa3b987bfebc9c35/Fritzing/Vloerverwarming%20monitor_schema.svg)
 
 My POC setup for now uses only 5 DS18B20 sensors. 
 
@@ -52,7 +52,7 @@ Below my basic call structure for 5 different sensors.
 
 [buymecoffee]: https://www.buymeacoffee.com/sldewit
 [buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png
-[license-shield]: https://img.shields.io/github/license/sldewit/vloerverwarmingMonitor.svg
+[license-shield]: https://img.shields.io/github/license/sldewit/TemperatureMonitor_MQTT.svg
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40sldewit-blue.svg
 [user_profile]: https://github.com/sldewit
-[stable_release]: https://shields.io/github/v/release/sldewit/VloerverwarmingMonitor?label=stable&sort=semver
+[stable_release]: https://shields.io/github/v/release/sldewit/TemperatureMonitor_MQTT?label=stable&sort=semver

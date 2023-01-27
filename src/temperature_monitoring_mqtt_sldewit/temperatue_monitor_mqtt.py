@@ -1,4 +1,4 @@
-"""Module providing temperature monitoring for floor heating"""
+"""Module providing temperature monitoring for multiple temperature sensors to MQTT"""
 # pylint: disable=W0703
 import sys
 from threading import Thread, Event
