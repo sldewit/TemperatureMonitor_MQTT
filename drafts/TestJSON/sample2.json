@@ -1,0 +1,5 @@
+{
+    "name": "test",
+    "mqtt_topic": "/topic/weirdness/",
+    "value": 3.0
+}

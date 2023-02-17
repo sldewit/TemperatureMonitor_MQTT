@@ -1,0 +1,42 @@
+[
+    {
+        "name": "Kring 1 aanvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring1/aanvoertemp",
+        "mac_address": "28dfc6571f64ff"
+    },
+    {
+        "name": "Kring 1 afvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring1/afvoertemp",
+        "mac_address": "28dfd9571f64ff"
+    },
+    {
+        "name": "Kring 1 aanvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring2/aanvoertemp",
+        "mac_address": "2828ff571f64ff"
+    },
+    {
+        "name": "Kring 2 afvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring2/afvoertemp",
+        "mac_address": "28aafd571f64ff"
+    },
+    {
+        "name": "Vloerverwarming aanvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/aanvoertemp",
+        "mac_address": "282bfe571f64ff"
+    },
+    {
+        "name": "Vloerverwarming afvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/afvoertemp",
+        "mac_address": "282bfe576f64ff"
+    },
+    {
+        "name": "Kring 3 aanvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring3/aanvoertemp",
+        "mac_address": "299bfe576f64ff"
+    },
+    {
+        "name": "Kring 3 afvoertemperatuur",
+        "MQTT_Topic": "vloerverwarming/kring3/afvoertemp",
+        "mac_address": "300bfe576f64ff"
+    }
+]
