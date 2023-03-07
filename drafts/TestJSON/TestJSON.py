@@ -42,7 +42,7 @@ SENSORS.append(MySensor("", "", "282bfe576f64ff"))
 
 print("Read back file...")
 try:
-    with open("./Documents/GitHub/TestJSON/sensor_list.json", "r") as readfile:
+    with open("./drafts/TestJSON/sensor_list.json", "r") as readfile:
         json_read_sensor_list = json.load(readfile)
         sensor_counter = 0
         for item in json_read_sensor_list:
@@ -64,7 +64,10 @@ except FileNotFoundError as ReadFileError:
 json_sensor_list = json.dumps([sensor.config.__dict__ for sensor in SENSORS], indent=4)
 print(json_sensor_list)
 
-with open("./Documents/GitHub/TestJSON/sensor_list.json", "w") as outfile:
-    outfile.write(json_sensor_list)
+try:
+    with open("./drafts/TestJSON/sensor_list.json", "w") as outfile:
+        outfile.write(json_sensor_list)
+except FileNotFoundError as WriteFileError:
+    print(WriteFileError)
 
 print(SENSORS[0].ha_conf.__dict__)
