@@ -42,6 +42,7 @@ class TemperatureSensor:
     def publish(self):
         """Sensor publish to MQTT function"""
         sensor_value = f"{{\"temperatuur\":\"{self.temperature}\"}}"
+        # pylint: disable-next=C0301
         sensor_attr = f"{{\"mac_address\":\"{self.sensoraddress}\",\"status\":\"{self.sensorstate}\"}}"
         try:
             self.mqtt_broker.publish(self.topic,
