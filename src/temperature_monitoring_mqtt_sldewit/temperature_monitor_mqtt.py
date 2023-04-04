@@ -41,18 +41,18 @@ class TemperatureSensor:
 
     def publish(self):
         """Sensor publish to MQTT function"""
+        sensor_value = f"{{\"temperatuur\":\"{self.temperature}\"}}"
+        sensor_attr = f"{{\"mac_address\":\"{self.sensoraddress}\",\"status\":\"{self.sensorstate}\"}}"
         try:
-            sensor_value = f'{"temperatuur":"self.temperature.1f"}'
             self.mqtt_broker.publish(self.topic,
                                      payload = sensor_value,
                                      qos=0, retain=True)
-            sensor_attr = f'{"mac_address":"{self.sensoraddress}","status":"{self.sensorstate}"}'
             self.mqtt_broker.publish(self.topic+'/attributes',
                                      payload = sensor_attr,
                                      qos=0,
                                      retain=False)
         except Exception as mqtt_exception:
-            print(f"MQTT publish failed: {mqtt_exception}")
+            print(f"MQTT publish failed on topic {self.topic} : {mqtt_exception}")
 
 # pylint: disable-next=W0613
 def on_connect(client, userdata, flags, return_code):
@@ -83,7 +83,7 @@ try:
     mqtt_client.on_connect = on_connect
     mqtt_client.will_set('vloerverwarming/status', "offline")
     mqtt_client.username_pw_set("mqtt","test_mqtt")
-    mqtt_client.connect("ha.de-wit.me", 1883, 60)
+    mqtt_client.connect("192.168.2.209", 1883, 60)
     mqtt_client.publish('vloerverwarming/status',payload = "online", qos=0, retain=True)
     mqtt_client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
     mqtt_client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
