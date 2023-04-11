@@ -30,7 +30,7 @@ class TemperatureSensor:
         """Sensor read function"""
         if self.temperaturesensor != 0:
             try:
-                self.temperature = self.temperaturesensor.get_temperature()
+                self.temperature = round(self.temperaturesensor.get_temperature(),1)
                 self.sensorstate = "online"
             except Exception as sensor_exception:
                 self.sensorstate = "offline"
@@ -44,6 +44,7 @@ class TemperatureSensor:
         sensor_value = f"{{\"temperatuur\":\"{self.temperature}\"}}"
         # pylint: disable-next=C0301
         sensor_attr = f"{{\"mac_address\":\"{self.sensoraddress}\",\"status\":\"{self.sensorstate}\"}}"
+        print(f"Publish {self.topic} as {self.temperature}")
         try:
             self.mqtt_broker.publish(self.topic,
                                      payload = sensor_value,
@@ -99,7 +100,12 @@ SENSORS.append(TemperatureSensor('vloerverwarming/kring1/aanvoertemp',"28dfc6571
 SENSORS.append(TemperatureSensor('vloerverwarming/kring1/afvoertemp',"28dfd9571f64ff",mqtt_client))
 SENSORS.append(TemperatureSensor('vloerverwarming/kring2/aanvoertemp',"2828ff571f64ff",mqtt_client))
 SENSORS.append(TemperatureSensor('vloerverwarming/kring2/afvoertemp',"28aafd571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring3/aanvoertemp',"28072261300627",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring3/afvoertemp',"280722613294cc",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring4/aanvoertemp',"280722614c7990",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/kring4/afvoertemp',"280922545d1f8a",mqtt_client))
 SENSORS.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/afvoertemp',"28092254776424",mqtt_client))
 
 stop_flag = Event()
 thread= MyThread(stop_flag, 10)
