@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "TemperatureMonitor_MQTT_sldewit"
-version = "0.0.5"
+version = "1.0.0"
 authors = [
   { name="Stephan de Wit", email="stephan@de-wit.me" },
 ]
