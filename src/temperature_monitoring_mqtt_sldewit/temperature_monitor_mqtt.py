@@ -12,17 +12,15 @@ LOCAL_PATH = "/home/sldewit/Github/TemperatureMonitor_MQTT"
 class TemperatureSensor:
     """Class representing a temperature sensor"""
     topic = ""
-    temperature = 0.0
     temperaturesensor = 0
     mqtt_broker = mqtt.Client()
     sensor_value = {
-        "temperatuur": "0.0"
+        "temperatuur": 0.0
     }
     sensor_attr = {
         "mac_address": "",
         "status": "offline"
     }
-
 
     def __init__(self, topic, sensoraddress, mqtt_broker) -> None:
         """Init function"""
@@ -40,21 +38,19 @@ class TemperatureSensor:
         """Sensor read function"""
         if self.temperaturesensor != 0:
             try:
-                self.temperature = round(self.temperaturesensor.get_temperature(),1)
-                self.sensor_value["temperatuur"] = str(self.temperature)
+                self.sensor_value["temperatuur"] = round(self.temperaturesensor.get_temperature(),1)
                 self.sensor_attr["status"] = "online"
             except Exception as sensor_exception:
                 self.sensor_attr["status"] = "offline"
                 logging.info("Exception while reading sensor: %s",sensor_exception)
         else: #simulate in case not really there
             self.sensor_attr["status"] = "simulating"
-            self.temperature += 0.1
-            self.sensor_value["temperatuur"] = str(self.temperature)
-            logging.info("Simulate sensor: %s - %s", self.topic, self.temperature)
+            self.sensor_value["temperatuur"] += 0.1
+            logging.info("Simulate sensor: %s - %s", self.topic, self.sensor_value["temperatuur"])
 
     def publish(self):
         """Sensor publish to MQTT function"""
-        logging.info("Publish %s as %s", self.topic, self.temperature)
+        logging.info("Publish %s as %s", self.topic, self.sensor_value["temperatuur"])
         try:
             self.mqtt_broker.publish(self.topic,
                                      payload = json.dumps(self.sensor_value, indent=4),
@@ -90,9 +86,9 @@ class MyThread(Thread):
                 sensor.read()
                 sensor.publish()
 
-logging.basicConfig(filename=LOCAL_PATH+"/tempmon.log")
-logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(format='%(asctime)s-%(levelname)s:%(message)s')
+logging.basicConfig(filename=LOCAL_PATH+"/tempmon.log",
+                    level=logging.DEBUG,
+                    format='%(asctime)s-%(levelname)s:%(message)s')
 logging.info('Temperature monitor starting')
 
 try:
