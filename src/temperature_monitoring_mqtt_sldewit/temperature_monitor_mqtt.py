@@ -30,7 +30,7 @@ class TemperatureSensor:
         self.mqtt_broker = mqtt_broker
         self.sensor_attr["mac_address"] = sensoraddress
         try:
-            self.temperaturesensor = Pi1Wire().find(self.sensoraddress)
+            self.temperaturesensor = Pi1Wire().find(self.sensor_attr["mac_address"])
             self.sensor_attr["status"] = "online"
         except Exception as pi1wire_exception:
             self.sensor_attr["status"] = "offline"
