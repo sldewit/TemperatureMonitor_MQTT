@@ -2,6 +2,7 @@
 # pylint: disable=W0703, C0304
 import sys
 import logging
+import json
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire
@@ -12,21 +13,27 @@ class TemperatureSensor:
     """Class representing a temperature sensor"""
     topic = ""
     temperature = 0.0
-    sensorstate = "offline"
-    sensoraddress = ""
     temperaturesensor = 0
     mqtt_broker = mqtt.Client()
+    sensor_value = {
+        "temperatuur": "0.0"
+    }
+    sensor_attr = {
+        "mac_address": "",
+        "status": "offline"
+    }
+
 
     def __init__(self, topic, sensoraddress, mqtt_broker) -> None:
         """Init function"""
         self.topic = topic
         self.mqtt_broker = mqtt_broker
-        self.sensoraddress = sensoraddress
+        self.sensor_attr["mac_address"] = sensoraddress
         try:
             self.temperaturesensor = Pi1Wire().find(self.sensoraddress)
-            self.sensorstate = "online"
+            self.sensor_attr["status"] = "online"
         except Exception as pi1wire_exception:
-            self.sensorstate = "not found"
+            self.sensor_attr["status"] = "offline"
             logging.critical("Exception initializing sensor: %s",pi1wire_exception)
 
     def read(self):
@@ -34,26 +41,26 @@ class TemperatureSensor:
         if self.temperaturesensor != 0:
             try:
                 self.temperature = round(self.temperaturesensor.get_temperature(),1)
-                self.sensorstate = "online"
+                self.sensor_value["temperatuur"] = str(self.temperature)
+                self.sensor_attr["status"] = "online"
             except Exception as sensor_exception:
-                self.sensorstate = "offline"
+                self.sensor_attr["status"] = "offline"
                 logging.info("Exception while reading sensor: %s",sensor_exception)
         else: #simulate in case not really there
+            self.sensor_attr["status"] = "simulating"
             self.temperature += 0.1
+            self.sensor_value["temperatuur"] = str(self.temperature)
             logging.info("Simulate sensor: %s - %s", self.topic, self.temperature)
 
     def publish(self):
         """Sensor publish to MQTT function"""
-        sensor_value = f"{{\"temperatuur\":\"{self.temperature}\"}}"
-        # pylint: disable-next=C0301
-        sensor_attr = f"{{\"mac_address\":\"{self.sensoraddress}\",\"status\":\"{self.sensorstate}\"}}"
         logging.info("Publish %s as %s", self.topic, self.temperature)
         try:
             self.mqtt_broker.publish(self.topic,
-                                     payload = sensor_value,
+                                     payload = json.dumps(self.sensor_value, indent=4),
                                      qos=0, retain=True)
             self.mqtt_broker.publish(self.topic+'/attributes',
-                                     payload = sensor_attr,
+                                     payload = json.dumps(self.sensor_attr, indent=4),
                                      qos=0,
                                      retain=False)
         except Exception as mqtt_exception:
