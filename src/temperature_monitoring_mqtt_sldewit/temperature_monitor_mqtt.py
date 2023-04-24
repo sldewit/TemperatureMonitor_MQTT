@@ -1,5 +1,5 @@
 """Module providing temperature monitoring for multiple temperature sensors to MQTT"""
-# pylint: disable=W0703
+# pylint: disable=W0703, C0304
 import sys
 import logging
 from threading import Thread, Event
