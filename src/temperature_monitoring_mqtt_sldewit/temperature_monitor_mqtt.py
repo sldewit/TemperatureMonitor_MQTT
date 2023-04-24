@@ -25,7 +25,7 @@ class TemperatureSensor:
             self.sensorstate = "online"
         except Exception as pi1wire_exception:
             self.sensorstate = "not found"
-            logging.critical(f"Exception initializing sensor: {pi1wire_exception}")
+            logging.critical("Exception initializing sensor: %s",pi1wire_exception)
 
     def read(self):
         """Sensor read function"""
@@ -35,17 +35,17 @@ class TemperatureSensor:
                 self.sensorstate = "online"
             except Exception as sensor_exception:
                 self.sensorstate = "offline"
-                logging.info(f"Exception while reading sensor: {sensor_exception}")
+                logging.info("Exception while reading sensor: %s",sensor_exception)
         else: #simulate in case not really there
             self.temperature += 0.1
-            logging.info(f"Simulate sensor: {self.topic} - {self.temperature}")
+            logging.info("Simulate sensor: %s - %s", self.topic, self.temperature)
 
     def publish(self):
         """Sensor publish to MQTT function"""
         sensor_value = f"{{\"temperatuur\":\"{self.temperature}\"}}"
         # pylint: disable-next=C0301
         sensor_attr = f"{{\"mac_address\":\"{self.sensoraddress}\",\"status\":\"{self.sensorstate}\"}}"
-        logging.info(f"Publish {self.topic} as {self.temperature}")
+        logging.info("Publish %s as %s", self.topic, self.temperature)
         try:
             self.mqtt_broker.publish(self.topic,
                                      payload = sensor_value,
@@ -55,7 +55,7 @@ class TemperatureSensor:
                                      qos=0,
                                      retain=False)
         except Exception as mqtt_exception:
-            logging.critical(f"MQTT publish failed on topic {self.topic} : {mqtt_exception}")
+            logging.critical("MQTT publish failed on topic %s : %s", self.topic, mqtt_exception)
 
 # pylint: disable-next=W0613
 def on_connect(client, userdata, flags, return_code):
@@ -63,7 +63,7 @@ def on_connect(client, userdata, flags, return_code):
     if return_code == 0:
         logging.debug("Connected success")
     else:
-        logging.critical(f"Connected fail with code {return_code}")
+        logging.critical("Connected fail with code %s", return_code)
 
 class MyThread(Thread):
     """Class for time thread"""
@@ -81,7 +81,8 @@ class MyThread(Thread):
                 sensor.read()
                 sensor.publish()
 
-logging.basicConfig(filename="tempmon.log",level=logging.DEBUG,format='%(asctime)s-%(levelname)s:%(message)s')
+logging.basicConfig(filename="tempmon.log",level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s-%(levelname)s:%(message)s')
 logging.info('Temperature monitor starting')
 
 try:
@@ -95,7 +96,7 @@ try:
     mqtt_client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
     mqtt_client.loop_start()
 except Exception as connect_exception:
-    logging.critical(f"Failed to connect to MQTT: {connect_exception}")
+    logging.critical("Failed to connect to MQTT: %s", connect_exception)
     sys.exit()
 
 SENSORS = []
