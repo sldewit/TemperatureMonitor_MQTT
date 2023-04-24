@@ -1,9 +1,12 @@
 """Module providing temperature monitoring for multiple temperature sensors to MQTT"""
 # pylint: disable=W0703, C0304
-import sys, logging, pathlib
+import sys
+import logging
 from threading import Thread, Event
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire
+
+LOCAL_PATH = "/home/sldewit/Github/TemperatureMonitor_MQTT"
 
 class TemperatureSensor:
     """Class representing a temperature sensor"""
@@ -80,9 +83,7 @@ class MyThread(Thread):
                 sensor.read()
                 sensor.publish()
 
-local_path = "/home/sldewit/Github/TemperatureMonitor_MQTT"
-
-logging.basicConfig(filename=local_path+"/tempmon.log")
+logging.basicConfig(filename=LOCAL_PATH+"/tempmon.log")
 logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(format='%(asctime)s-%(levelname)s:%(message)s')
 logging.info('Temperature monitor starting')
