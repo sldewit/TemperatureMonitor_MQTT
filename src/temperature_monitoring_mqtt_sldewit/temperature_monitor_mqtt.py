@@ -15,35 +15,21 @@ mqtt_client = mqtt.Client()
 
 class MQTTDevice:
     """Class representing MQTT device"""
-    identifiers = [""]
-    manufacturer = "White Inc"
-    model = ""
-    name = ""
-    via_device = ""
-    sw_version = "1.0"
     def __init__(self, identifiers, model, name, via_device) -> None:
         """Init function"""
         self.identifiers = identifiers
+        self.manufacturer = "White Inc"
         self.model = model
         self.name = name
         self.via_device = via_device
+        self.sw_version = "1.0"
 
 class MQTTConfig:
     """Class representing MQTT config"""
-    name = ""
-    unit_of_meas = ""
-    stat_t = ""
-    uniq_id = ""
-    val_tpl = ""
-    dev_cla = ""
-    avty_t = ""
-    json_attr_t = ""
-    dev = ""
-
     def __init__(self, topic, kring, meetpunt, sensor_type="pi1wire") -> None:
         """Init function"""
         self.unit_of_meas = "°C"
-        self.val_tpl = "{{ value_json.temperatuur }}"
+        self.val_tpl = "{{ value_json.temperature }}"
         self.dev_cla = "temperature"
         self.avty_t = "vloerverwarming/monitoring/status"
         if sensor_type == "pi1wire":
@@ -56,7 +42,7 @@ class MQTTConfig:
                 model = "DS18B20"
                 name = f"Kring {kring}"
                 via_device = "Vloerverwarming"
-                self.dev = MQTTDevice(identifiers, model, name, via_device).__dict__
+                self.dev = MQTTDevice(identifiers, model, name, via_device)
             else:
                 self.name = f"Vloerverwarming {meetpunt}"
                 self.stat_t = topic
@@ -66,7 +52,7 @@ class MQTTConfig:
                 model = "DS18B20"
                 name = "Vloerverwarming"
                 via_device = ""
-                self.dev = MQTTDevice(identifiers, model, name, via_device).__dict__
+                self.dev = MQTTDevice(identifiers, model, name, via_device)
         else:
             self.name = f"Monitoring {meetpunt}"
             self.stat_t = topic
@@ -76,29 +62,40 @@ class MQTTConfig:
             model = "Raspberry Pi"
             name = "Monitoring"
             via_device = ""
-            self.dev = self.dev = MQTTDevice(identifiers, model, name, via_device).__dict__
+            self.dev = MQTTDevice(identifiers, model, name, via_device)
 
 class SensorValue:
     """Class representing sensor value"""
-    temperatuur = 0.0
+    temperature = 0.0
+    def __init__(self, temperature):
+        """Init function"""
+        self.temperature = temperature
+
+    def get(self):
+        """Get temperature function"""
+        return self.temperature
+
+    def set(self, temperature):
+        """Set temperature function"""
+        self.temperature = round(temperature,1)
 
 class SensorAttr:
     """Class representing sensor attributes"""
-    mac_address = ""
-    status = "offline"
+    def __init__(self, mac_address, status):
+        """Init function"""
+        self.mac_address = mac_address
+        self.status = status
+
+    def set_mac_address(self, mac_address):
+        """Set mac address function"""
+        self.mac_address = mac_address
+
+    def get_mac_address(self):
+        """Get mac address function"""
+        return self.mac_address
 
 class TemperatureSensor:
     """Class representing a temperature sensor"""
-    topic = ""
-    cfg_topic = ""
-    tempsensor = 0
-    mqtt_broker = mqtt_client
-    sensor_value = SensorValue()
-    sensor_attr = SensorAttr()
-    sensor_type = "pi1wire"
-    sensor_config = ""
-    config_set = False
-
     def __init__(self, kring, meetpunt, sensor_address, sensor_type="pi1wire") -> None:
         """Init function"""
         if sensor_type == "pi1wire":
@@ -113,8 +110,10 @@ class TemperatureSensor:
             self.cfg_topic = f"homeassistant/sensor/{meetpunt}temperatuur/config"
         self.sensor_config = MQTTConfig(self.topic, kring, meetpunt, sensor_type)
         self.mqtt_broker = mqtt_client
-        self.sensor_attr.mac_address = sensor_address
+        self.sensor_attr = SensorAttr(sensor_address, "offline")
+        self.sensor_value = SensorValue(0.0)
         self.sensor_type = sensor_type
+        self.config_set = False
         try:
             if sensor_type == "pi1wire":
                 self.tempsensor = Pi1Wire().find(self.sensor_attr.mac_address)
@@ -129,7 +128,9 @@ class TemperatureSensor:
         """Publish config to MQTT broker"""
         try:
             self.mqtt_broker.publish(self.cfg_topic,
-                                     payload = json.dumps(self.sensor_config.__dict__, indent=4),
+                                     payload = json.dumps(self.sensor_config,
+                                                          default=lambda o:o.__dict__,
+                                                          indent=4),
                                      qos=0, retain=True)
             self.config_set = True
         except Exception as mqtt_exception:
@@ -140,17 +141,17 @@ class TemperatureSensor:
         if self.tempsensor != 0:
             try:
                 if self.sensor_type == "pi1wire":
-                    self.sensor_value.temperatuur = round(self.tempsensor.get_temperature(),1)
+                    self.sensor_value.set(self.tempsensor.get_temperature())
                 if self.sensor_type == "cpu":
-                    self.sensor_value.temperatuur = round(self.tempsensor.temperature,1)
+                    self.sensor_value.set(self.tempsensor.temperature)
                 self.sensor_attr.status = "online"
             except Exception as sensor_exception:
                 self.sensor_attr.status = "offline"
                 logging.info("Exception while reading sensor: %s",sensor_exception)
         else: #simulate in case not really there
             self.sensor_attr.status = "simulating"
-            self.sensor_value.temperatuur += 0.1
-            logging.info("Simulate sensor: %s - %s", self.topic, self.sensor_value.temperatuur)
+            self.sensor_value.temperature += 0.1
+            logging.info("Simulate sensor: %s - %s", self.topic, self.sensor_value.temperature)
 
     def publish(self):
         """Sensor publish to MQTT broker"""
