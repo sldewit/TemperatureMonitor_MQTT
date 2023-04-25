@@ -4,15 +4,17 @@ import sys
 import logging
 import json
 from threading import Thread, Event
+from gpiozero import CPUTemperature
 import paho.mqtt.client as mqtt
 from pi1wire import Pi1Wire
 
 LOCAL_PATH = "/home/sldewit/Github/TemperatureMonitor_MQTT"
+MONITORING_TOPIC = "vloerverwarming/monitoring"
 
 class TemperatureSensor:
     """Class representing a temperature sensor"""
     topic = ""
-    temperaturesensor = 0
+    tempsensor = 0
     mqtt_broker = mqtt.Client()
     sensor_value = {
         "temperatuur": 0.0
@@ -21,24 +23,32 @@ class TemperatureSensor:
         "mac_address": "",
         "status": "offline"
     }
+    sensor_type = "pi1wire"
 
-    def __init__(self, topic, sensoraddress, mqtt_broker) -> None:
+    def __init__(self, topic, sensoraddress, mqtt_broker, sensor_type="pi1wire") -> None:
         """Init function"""
         self.topic = topic
         self.mqtt_broker = mqtt_broker
         self.sensor_attr["mac_address"] = sensoraddress
+        self.sensor_type = sensor_type
         try:
-            self.temperaturesensor = Pi1Wire().find(self.sensor_attr["mac_address"])
+            if sensor_type == "pi1wire":
+                self.tempsensor = Pi1Wire().find(self.sensor_attr["mac_address"])
+            if sensor_type == "cpu":
+                self.tempsensor = CPUTemperature()
             self.sensor_attr["status"] = "online"
-        except Exception as pi1wire_exception:
+        except Exception as sensor_exception:
             self.sensor_attr["status"] = "offline"
-            logging.critical("Exception initializing sensor: %s",pi1wire_exception)
+            logging.critical("Exception initializing sensor: %s",sensor_exception)
 
     def read(self):
         """Sensor read function"""
-        if self.temperaturesensor != 0:
+        if self.tempsensor != 0:
             try:
-                self.sensor_value["temperatuur"] = round(self.temperaturesensor.get_temperature(),1)
+                if self.sensor_type == "pi1wire":
+                    self.sensor_value["temperatuur"] = round(self.tempsensor.get_temperature(),1)
+                if self.sensor_type == "cpu":
+                    self.sensor_value["temperatuur"] = round(self.tempsensor.temperature,1)
                 self.sensor_attr["status"] = "online"
             except Exception as sensor_exception:
                 self.sensor_attr["status"] = "offline"
@@ -94,12 +104,12 @@ logging.info('Temperature monitor starting')
 try:
     mqtt_client = mqtt.Client()
     mqtt_client.on_connect = on_connect
-    mqtt_client.will_set('vloerverwarming/status', "offline")
+    mqtt_client.will_set(MONITORING_TOPIC+'/status', "offline")
     mqtt_client.username_pw_set("mqtt","test_mqtt")
     mqtt_client.connect("192.168.2.209", 1883, 60)
-    mqtt_client.publish('vloerverwarming/status',payload = "online", qos=0, retain=True)
-    mqtt_client.publish('vloerverwarming/version/installed',payload = "1.0.0", qos=0, retain=True)
-    mqtt_client.publish('vloerverwarming/version/latest',payload = "1.0.0", qos=0, retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/status',payload = "online", qos=0, retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/version/installed',payload = "1.0.0", qos=0, retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/version/latest',payload = "1.0.0", qos=0, retain=True)
     mqtt_client.loop_start()
 except Exception as connect_exception:
     logging.critical("Failed to connect to MQTT: %s", connect_exception)
@@ -117,6 +127,7 @@ SENSORS.append(TemperatureSensor('vloerverwarming/kring4/aanvoertemp',"280722614
 SENSORS.append(TemperatureSensor('vloerverwarming/kring4/afvoertemp',"280922545d1f8a",mqtt_client))
 SENSORS.append(TemperatureSensor('vloerverwarming/aanvoertemp',"282bfe571f64ff",mqtt_client))
 SENSORS.append(TemperatureSensor('vloerverwarming/afvoertemp',"28092254776424",mqtt_client))
+SENSORS.append(TemperatureSensor('vloerverwarming/monitoring/cputemp',"",mqtt_client,"cpu"))
 
 stop_flag = Event()
 thread= MyThread(stop_flag, 10)
