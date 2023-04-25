@@ -41,7 +41,7 @@ class MQTTConfig:
                 identifiers = [f"kring{kring}"]
                 model = "DS18B20"
                 name = f"Kring {kring}"
-                via_device = "Vloerverwarming"
+                via_device = "vloerverwarming"
                 self.dev = MQTTDevice(identifiers, model, name, via_device)
             else:
                 self.name = f"Vloerverwarming {meetpunt}"
@@ -61,7 +61,7 @@ class MQTTConfig:
             identifiers = ["monitoring"]
             model = "Raspberry Pi"
             name = "Monitoring"
-            via_device = ""
+            via_device = "vloerverwarming"
             self.dev = MQTTDevice(identifiers, model, name, via_device)
 
 class SensorValue:
@@ -147,15 +147,15 @@ class TemperatureSensor:
                 self.sensor_attr.status = "online"
             except Exception as sensor_exception:
                 self.sensor_attr.status = "offline"
-                logging.info("Exception while reading sensor: %s",sensor_exception)
+                logging.debug("Exception while reading sensor: %s",sensor_exception)
         else: #simulate in case not really there
             self.sensor_attr.status = "simulating"
             self.sensor_value.temperature += 0.1
-            logging.info("Simulate sensor: %s - %s", self.topic, self.sensor_value.temperature)
+            logging.debug("Simulate sensor: %s - %s", self.topic, self.sensor_value.temperature)
 
     def publish(self):
         """Sensor publish to MQTT broker"""
-        logging.info("Publish %s as %s", self.topic, self.sensor_value.__dict__)
+        logging.debug("Publish %s as %s", self.topic, self.sensor_value.__dict__)
         if not self.config_set:
             self.publish_config()
         try:
@@ -194,9 +194,9 @@ class MyThread(Thread):
                 sensor.publish()
 
 logging.basicConfig(filename=LOCAL_PATH+"/tempmon.log",
-                    level=logging.DEBUG,
+                    level=logging.INFO,
                     format='%(asctime)s-%(levelname)s:%(message)s')
-logging.info('Temperature monitor starting')
+logging.debug('Temperature monitor starting')
 
 try:
     mqtt_client.on_connect = on_connect
@@ -229,4 +229,4 @@ stop_flag = Event()
 thread= MyThread(stop_flag, 10)
 thread.start()
 
-logging.info('Temperature monitor started')
+logging.debug('Temperature monitor started')
