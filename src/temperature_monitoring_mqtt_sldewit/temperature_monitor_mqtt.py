@@ -131,7 +131,8 @@ class TemperatureSensor:
                                      payload = json.dumps(self.sensor_config,
                                                           default=lambda o:o.__dict__,
                                                           indent=4),
-                                     qos=0, retain=True)
+                                     qos=2,
+                                     retain=True)
             self.config_set = True
         except Exception as mqtt_exception:
             logging.critical("MQTT publish failed on topic %s : %s", self.cfg_topic, mqtt_exception)
@@ -161,10 +162,11 @@ class TemperatureSensor:
         try:
             self.mqtt_broker.publish(self.topic,
                                      payload = json.dumps(self.sensor_value.__dict__, indent=4),
-                                     qos=0, retain=True)
+                                     qos=2,
+                                     retain=True)
             self.mqtt_broker.publish(self.topic+'/attributes',
                                      payload = json.dumps(self.sensor_attr.__dict__, indent=4),
-                                     qos=0,
+                                     qos=2,
                                      retain=False)
         except Exception as mqtt_exception:
             logging.critical("MQTT publish failed on topic %s : %s", self.topic, mqtt_exception)
@@ -188,6 +190,13 @@ class MyThread(Thread):
 
     def run(self):
         """Run function of timed thread"""
+        topic = MONITORING_TOPIC+'/status'
+        try:
+            mqtt_client.publish(topic,payload = "online",
+                                qos=2,
+                                retain=True) #Publish online state as "keep allive"
+        except Exception as mqtt_exception:
+            logging.critical("MQTT publish failed on topic %s : %s", topic, mqtt_exception)
         while not self.stopped.wait(self.interval):
             for sensor in SENSORS:
                 sensor.read()
@@ -203,9 +212,15 @@ try:
     mqtt_client.will_set(MONITORING_TOPIC+'/status', "offline")
     mqtt_client.username_pw_set("mqtt","test_mqtt")
     mqtt_client.connect("192.168.2.209", 1883, 60)
-    mqtt_client.publish(MONITORING_TOPIC+'/status',payload = "online", qos=0, retain=True)
-    mqtt_client.publish(MONITORING_TOPIC+'/version/installed',payload = "1.0.0", qos=0, retain=True)
-    mqtt_client.publish(MONITORING_TOPIC+'/version/latest',payload = "1.0.0", qos=0, retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/status',payload = "online",
+                        qos=2,
+                        retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/version/installed',payload = "1.0.0",
+                        qos=2,
+                        retain=True)
+    mqtt_client.publish(MONITORING_TOPIC+'/version/latest',payload = "1.0.0",
+                        qos=2,
+                        retain=True)
     mqtt_client.loop_start()
 except Exception as connect_exception:
     logging.critical("Failed to connect to MQTT: %s", connect_exception)
