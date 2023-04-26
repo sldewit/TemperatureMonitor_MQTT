@@ -1,4 +1,4 @@
-"""Module providing temperature monitoring for multiple temperature sensors to MQTT"""
+"""Module providing monitoring for multiple heating circuits to Home Assistant via MQTT"""
 # pylint: disable=W0703, W0613, C0304, C0301, R0902, R0903
 import sys
 import logging
@@ -205,7 +205,7 @@ class MyThread(Thread):
 logging.basicConfig(filename=LOCAL_PATH+"/tempmon.log",
                     level=logging.INFO,
                     format='%(asctime)s-%(levelname)s:%(message)s')
-logging.debug('Temperature monitor starting')
+logging.debug('Heating monitor starting')
 
 try:
     mqtt_client.on_connect = on_connect
@@ -244,4 +244,4 @@ stop_flag = Event()
 thread= MyThread(stop_flag, 10)
 thread.start()
 
-logging.debug('Temperature monitor started')
+logging.debug('Heating monitor started')
