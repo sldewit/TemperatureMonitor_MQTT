@@ -1,4 +1,4 @@
-pylint==2.17.2
+pylint==2.17.3
 paho-mqtt==1.6.1
 pi1wire==0.3.0
 gpiozero==1.6.2
