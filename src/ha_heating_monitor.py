@@ -31,7 +31,7 @@ class MQTTConfig:
         self.unit_of_meas = "°C"
         self.val_tpl = "{{ value_json.temperature }}"
         self.dev_cla = "temperature"
-        self.avty_t = "vloerverwarming/monitoring/status"
+        #self.avty_t = "vloerverwarming/monitoring/status"
         if sensor_type == "pi1wire":
             if kring > 0:
                 self.name = f"Vloerverwarming {meetpunt} kring {kring}"
